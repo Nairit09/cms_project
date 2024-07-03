@@ -1,8 +1,6 @@
 package com.cms.serviceImpl;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -13,13 +11,15 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import com.cms.dto.UserDto;
-
 import com.cms.entities.User;
-import com.cms.exception.ResourceNotFoundException;
+import com.cms.exceptions.ResourceNotFoundException;
 import com.cms.repositories.RoleRepo;
 import com.cms.repositories.UserRepo;
+import com.cms.services.EmailService;
+import com.cms.services.OTPservice;
 import com.cms.services.UserService;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -34,6 +34,12 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private RoleRepo roleRepo;
+
+	@Autowired
+	private EmailService emailService;
+
+	@Autowired
+	private OTPservice otpService;
 
 //	@Override
 //
@@ -130,4 +136,18 @@ public class UserServiceImpl implements UserService {
 		return userDto;
 	}
 
+	public void sendOtpForPasswordReset(String email) {
+		User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		String otp = otpService.generateOTP();
+		otpService.storeOTP(email, otp);
+		emailService.sendOTP(user.getEmail(), otp);
+	}
+
+
+	public void resetPassword(String email, String otp, String newPassword) {
+		User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		if (!otpService.validateOTP(email, otp)) {
+			throw new RuntimeException("Invalid OTP");
+		}
+	}
 }

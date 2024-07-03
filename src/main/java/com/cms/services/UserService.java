@@ -4,14 +4,15 @@ import java.util.List;
 
 import com.cms.dto.UserDto;
 
-
 public interface UserService {
 
 	public UserDto saveUser(UserDto userDto);
-	
+
 	public Boolean existUser(String user);
-	
+
 	List<UserDto> getAllUser();
 
+	public void sendOtpForPasswordReset(String email);
 
+	public void resetPassword(String email, String otp, String newPassword);
 }
