@@ -102,6 +102,10 @@ public class UserServiceImpl implements UserService {
 			if (StringUtils.hasLength(user.getEmail())) {
 				existUser.setEmail(user.getEmail());
 			}
+			if (StringUtils.hasLength(user.getEmail())) {
+				existUser.setPassword(user.getPassword());
+			}
+
 
 			User updateUser = userRepo.save(existUser);
 			saveUserDto = mapper.map(updateUser, UserDto.class);
